@@ -4,7 +4,7 @@ A typeahead component for DarwinEd app
 <img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img1.png">
 <img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img2.png">
 
-* live example: http://daniel-llach.github.io/dw-select/
+* live example: http://daniel-llach.github.io/dw-typeahead/
 
 **dwTypeahead** show *options* divide into *groups*, one option can be insert in many groups.
 
@@ -42,7 +42,7 @@ If you filter by groups and add a **space** the next word **filter the options o
 1.1.- Install dependencies from bower into your project
 
 ```javascript
-  bower install --save dw-select
+  bower install --save dw-typeahead
 ```
 
 ---
@@ -50,10 +50,10 @@ If you filter by groups and add a **space** the next word **filter the options o
 1.2.- Include dependencies in your html:
 
 ```html
-<!-- dw-filter dependencies -->
+<!-- dw-typeahead dependencies -->
 <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-<script src="./component/dw-select.js"></script>
-<link rel="stylesheet" type="text/css" href="./component/dw-select.css">
+<script src="./component/dw-typeahead.js"></script>
+<link rel="stylesheet" type="text/css" href="./component/dw-typeahead.css">
 ```
 
 ---
@@ -62,7 +62,7 @@ If you filter by groups and add a **space** the next word **filter the options o
 
 ---
 
-Execute the dwFilter class on a selector. It will be rendered a dw-filter element in this container inherit its position and width.
+Execute the dwTypeahead class on a selector. It will be rendered a dw-typeahead element in this container inherit its position and width.
 
 ```javascript
 $('#id').dwTypeahead();
@@ -80,11 +80,21 @@ If the dwTypeahead() class has an object the API interprets that is a new elemen
 
 The API accepts the next configurations:
 
+### 3.1.- placeholder:
+
+Put the placeholder text that you want.
+```javascript
+$('#sample1').dwTypeahead({
+  placeholder: 'Select your animal'
+})
+```
+
 ### 3.1.- data:
 dwTypeahead recives the next configuration:
 
 ```javascript
 $('#sample1').dwTypeahead({
+  placeholder: 'Select your animal',
   data: [
     {
       id: 1,
@@ -104,7 +114,6 @@ $('#sample1').dwTypeahead({
 });
 ```
 
-
 The next are the fields of an option object:
 
 - **id:** An identifier
@@ -122,7 +131,7 @@ The next are the fields of an option object:
 ## 3.2.- Destroy
 This methods empty the container div and remove class too.
 ```javascript
-$('#id').dwFilter('destroy');
+$('#id').dwTypeahead('destroy');
 ```
 
 ---
@@ -148,7 +157,7 @@ $('#id').on({
 
 ---
 
-You can view a local demo installing the component and open /bower_components/dw-select/**index.html** in your browser (localhost/your_rute).
+You can view a local demo installing the component and open /bower_components/dw-typeahead/**index.html** in your browser (localhost/your_rute).
 
 You must change the bower_components dependencies rutes as follow:
 
