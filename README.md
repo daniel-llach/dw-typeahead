@@ -14,7 +14,7 @@ Every **option** has a *primary text* that is the main content and a *secundary*
 
 ## filter all options:
 
-<img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img2.png">
+<img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img2b.png">
 
 Just type what you want and *dwTypeahead* search you text into **all primary and secondly content in every groups**
 
