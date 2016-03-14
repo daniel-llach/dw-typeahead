@@ -1,7 +1,7 @@
 # dw-typeahead
 A typeahead component for DarwinEd app
 
-<img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img1.png">
+<!-- <img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img1.png"> -->
 <img src="https://raw.githubusercontent.com/daniel-llach/dw-typeahead/master/img/img2.png">
 
 * live example: http://daniel-llach.github.io/dw-typeahead/
