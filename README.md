@@ -70,11 +70,12 @@ $('#id').dwTypeahead();
 
  ---
 
- # 3.- API
+# 3.- API
 
  ---
 
- ## 3.1.- Init
+
+## 3.1.- Init
 If the dwTypeahead() class has an object the API interprets that is a new element and create it.
 
 
@@ -89,7 +90,7 @@ $('#sample1').dwTypeahead({
 })
 ```
 
-### 3.1.- data:
+### 3.2.- data:
 dwTypeahead recives the next configuration:
 
 ```javascript
@@ -128,7 +129,7 @@ The next are the fields of an option object:
 
 ---
 
-## 3.2.- Destroy
+## 3.3.- Destroy
 This methods empty the container div and remove class too.
 ```javascript
 $('#id').dwTypeahead('destroy');
