@@ -364,6 +364,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
           // show/hide clear icon
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
+          $el.find('.options').removeClass('hide');
           methods.setPosition($el);
         },
         focus: function(event){
@@ -392,6 +393,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           methods.hideOptions($el, $search.val(), options);
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
           ($search.val().length > 0) ? $search.removeClass('glass') : $search.addClass('glass');
+
           // restart contents
           api.restart($el);
         }
@@ -410,6 +412,8 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           api.val($el);
           // show selected option
           methods.showSelected( $el, $(event.target), options )
+          // hide options
+          $el.find('.options').addClass('hide');
         }
       })
     },
