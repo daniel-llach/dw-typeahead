@@ -44,6 +44,15 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       $el.data('result','')
 
     },
+    empty: function($el){
+      (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
+      let $options = $el.find('content > .options');
+      let $clear = $el.find('.clear');
+      let $search = $el.find('#search');
+      $options.addClass('hide');
+      $clear.addClass('hide');
+      $search.val('');  // clean text search
+    }
   }
 
   // Private methods
@@ -355,6 +364,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
           // show/hide clear icon
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
+          methods.setPosition($el);
         },
         focus: function(event){
           // $search.removeClass('glass');
