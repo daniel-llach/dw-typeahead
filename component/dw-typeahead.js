@@ -108,6 +108,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
               $el.find('.' + group + '.group-content').append(contentHtml);
             });
 
+            methods.setPosition($el);
             events.start($el, options);
           });
 
@@ -130,10 +131,21 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
               $el.find('content > .options').append(contentHtml);
             });
 
+            methods.setPosition($el);
             events.start($el, options);
           });
       }
 
+    },
+    setPosition: function($el){
+      let contentWidth = $el.outerWidth();
+      let contentTop = $el.offset().top + $el.height();
+      let contentLeft = $el.offset().left;
+      $el.find('content').css({
+        width: contentWidth + 'px',
+        top: contentTop + 'px',
+        left: contentLeft + 'px'
+      })
     },
     hideOptions: function($el, inputData, options){
 
