@@ -138,15 +138,30 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
     },
     setPosition: function($el){
+      let windowHeight = $(window).height();
       let scrollTop = methods.previousParentsScrollTop($el);
       let scrollLeft = methods.previousParentsScrollLeft($el);
 
       let contentWidth = $el.outerWidth();
-      let contentTop = $el.offset().top + $el.height() - scrollTop;
+      let elHeight = $el.offset().top
+      let contentTop = elHeight + $el.height() - scrollTop;
       let contentLeft = $el.offset().left - scrollLeft;
+      let contentHeight = $el.find('content').height();
+      let headerHeight = $el.find('header').height();
+
+      // vertical
+      if(windowHeight - ( contentTop + contentHeight + 100 ) < 0 ){
+        $el.find('content').css({
+          top: contentTop - contentHeight + - headerHeight + 'px',
+        })
+      }else{
+        $el.find('content').css({
+          top: contentTop + 'px',
+        })
+      }
+      // horizontal
       $el.find('content').css({
         width: contentWidth + 'px',
-        top: contentTop + 'px',
         left: contentLeft + 'px'
       })
     },
@@ -343,7 +358,9 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
         },
         focus: function(event){
           // $search.removeClass('glass');
+
           $options.removeClass('hide');
+          methods.setPosition($el);
 
           events.initOptions($el, options);
 
