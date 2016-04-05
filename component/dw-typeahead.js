@@ -138,14 +138,72 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
     },
     setPosition: function($el){
+      let scrollTop = methods.previousParentsScrollTop($el);
+      let scrollLeft = methods.previousParentsScrollLeft($el);
+
       let contentWidth = $el.outerWidth();
-      let contentTop = $el.offset().top + $el.height();
-      let contentLeft = $el.offset().left;
+      let contentTop = $el.offset().top + $el.height() - scrollTop;
+      let contentLeft = $el.offset().left - scrollLeft;
       $el.find('content').css({
         width: contentWidth + 'px',
         top: contentTop + 'px',
         left: contentLeft + 'px'
       })
+    },
+    previousParentsScrollTop: function($el){
+      (function($) {
+          $.fn.hasScrollBar = function() {
+              return this.get(0).scrollHeight > this.height();
+          }
+      })(jQuery);
+
+      let scroll;
+
+      $el.parents().filter(function(){
+        if( $(this).hasScrollBar() ){
+          scroll = $(this).scrollTop();
+          return
+        }
+      })
+
+      return scroll;
+    },
+    previousParentsScrollLeft: function($el){
+      (function($) {
+          $.fn.hasScrollBar = function() {
+              return this.get(0).scrollHeight > this.height();
+          }
+      })(jQuery);
+
+      let scroll;
+
+      $el.parents().filter(function(){
+        if( $(this).hasScrollBar() ){
+          scroll = $(this).scrollLeft();
+          return
+        }
+      })
+
+      return scroll;
+    },
+    getPreviousParentScroll: function($el){
+      (function($) {
+          $.fn.hasScrollBar = function() {
+              return this.get(0).scrollHeight > this.height();
+          }
+      })(jQuery);
+
+      let parentScroll;
+
+      $el.parents().filter(function(){
+        if( $(this).hasScrollBar() ){
+          parentScroll = $(this);
+          return
+        }
+      })
+
+      return parentScroll;
+
     },
     hideOptions: function($el, inputData, options){
 
@@ -259,6 +317,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       events.clearSearch($el, options);
       events.clickOption($el, options);
       events.clickOut($el, options);
+      events.updatePosition($el);
     },
     initOptions: function($el, options){
       let $option = $el.find('content > .options > .option');
@@ -273,8 +332,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       let $search = $el.find('.search input');
       let $options = $el.find('content > .options');
       let $clear = $el.find('.clear');
-
-
 
       $search.on({
         keyup: function(event){
@@ -341,7 +398,13 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
               $clear.addClass('hide')
           }
       });
-    }
+    },
+    updatePosition: function($el){
+      let $parentScroll = methods.getPreviousParentScroll($el);
+      $(document).on( 'scroll', $parentScroll[0].tagname, function(){
+        methods.setPosition($el)
+      });
+    },
 
   };
 
