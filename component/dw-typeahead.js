@@ -159,7 +159,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       let headerHeight = $el.find('header').height();
 
       // vertical
-      if(windowHeight - ( contentTop + contentHeight + 100 ) < 0 ){
+      if(windowHeight - ( contentTop + contentHeight ) < 0 ){
         $el.find('content').css({
           top: contentTop - contentHeight + - headerHeight + 'px',
         })
