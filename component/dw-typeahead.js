@@ -29,6 +29,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       methods.getVal($el);
     },
     restart: function($el){
+      (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
       // previene cuando no hay input
       let $groups = $el.find('.options .group');
       let $groupsContent = $el.find('.options .group-content');
@@ -433,6 +434,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           {
               $options.addClass('hide');
               $clear.addClass('hide')
+              $content.removeClass('shadowUp').removeClass('shadowDown')
           }
       });
     },
