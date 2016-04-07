@@ -362,6 +362,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       events.clickOption($el, options);
       events.clickOut($el, options);
       events.updatePosition($el);
+      api.restart($el, false);
     },
     initOptions: function($el, options){
       let $option = $el.find('content > .options > .option');
