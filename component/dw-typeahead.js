@@ -28,7 +28,8 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
       methods.getVal($el);
     },
-    restart: function($el){
+    restart: function($el, hard){
+      console.log("hard: ", hard);
       (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
       // previene cuando no hay input
       let $groups = $el.find('.options .group');
@@ -42,7 +43,11 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
       // deselect
       $options.removeClass('selected')
-      $el.data('result','')
+      if(hard){
+        $el.data('result','')
+      }else{
+        console.log("result: ", $el.data('result'));
+      }
 
     },
     empty: function($el){
@@ -394,7 +399,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
         },
         focusout: function(event){
-          api.restart($el);
+          api.restart($el, false);
         }
       });
     },
@@ -409,7 +414,8 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           ($search.val().length > 0) ? $search.removeClass('glass') : $search.addClass('glass');
 
           // restart contents
-          api.restart($el);
+          console.log("clearSearch");
+          api.restart($el, true);
         }
       })
     },
