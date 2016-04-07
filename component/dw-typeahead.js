@@ -431,7 +431,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           if (!$el.is(e.target) // if the target of the click isn't the $el...
               && $el.has(e.target).length === 0) // ... nor a descendant of the $el
           {
-              $content.css('box-shadow', 'red 0 0 0 0');
               $options.addClass('hide');
               $clear.addClass('hide')
           }
