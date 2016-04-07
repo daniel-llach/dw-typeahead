@@ -145,7 +145,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
             let data = _.sortBy(optionsData, 'primary');
 
             // options each
-            options['data'].forEach(data => {
+            optionsData.forEach(data => {
               let contentHtml = template({
                 id: data['id'],
                 primary: data['primary'],
