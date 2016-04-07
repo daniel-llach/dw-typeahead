@@ -161,15 +161,16 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       // vertical
       if(windowHeight - ( contentTop + contentHeight ) < 0 ){
         $el.find('content').css({
-          top: contentTop - contentHeight + - headerHeight + 'px',
-          'box-shadow': '0px -10px 5px -1px rgba(0,0,0,0.32)'
+          top: contentTop - contentHeight + - headerHeight + 'px'
         })
+        .addClass('shadowUp')
+        .removeClass('shadowDown')
       }else{
         $el.find('content').css({
-          top: contentTop + 'px',
-          'box-shadow': '0px 10px 5px -1px rgba(0,0,0,0.32)'
-
+          top: contentTop + 'px'
         })
+        .addClass('shadowDown')
+        .removeClass('shadowUp')
       }
       // horizontal
       $el.find('content').css({
