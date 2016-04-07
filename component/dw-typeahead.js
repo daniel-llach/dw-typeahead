@@ -162,16 +162,20 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       if(windowHeight - ( contentTop + contentHeight ) < 0 ){
         $el.find('content').css({
           top: contentTop - contentHeight + - headerHeight + 'px',
+          'box-shadow': '0px -10px 5px -1px rgba(0,0,0,0.32)'
         })
       }else{
         $el.find('content').css({
           top: contentTop + 'px',
+          'box-shadow': '0px 10px 5px -1px rgba(0,0,0,0.32)'
+
         })
       }
       // horizontal
       $el.find('content').css({
         width: contentWidth + 'px',
         left: contentLeft + 'px'
+
       })
     },
     previousParentsScrollTop: function($el){
