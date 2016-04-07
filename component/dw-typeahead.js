@@ -29,7 +29,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       methods.getVal($el);
     },
     restart: function($el, hard){
-      console.log("hard: ", hard);
       (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
       // previene cuando no hay input
       let $groups = $el.find('.options .group');
@@ -46,7 +45,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       if(hard){
         $el.data('result','')
       }else{
-        console.log("result: ", $el.data('result'));
       }
 
     },
@@ -390,7 +388,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
         },
         focus: function(event){
           // $search.removeClass('glass');
-
+          $el.find('content').css('display','block');
           $options.removeClass('hide');
           methods.setPosition($el);
 
@@ -401,6 +399,8 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
         },
         focusout: function(event){
           api.restart($el, false);
+          $el.find('content').css('display','none');
+
         }
       });
     },
@@ -415,7 +415,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           ($search.val().length > 0) ? $search.removeClass('glass') : $search.addClass('glass');
 
           // restart contents
-          console.log("clearSearch");
           api.restart($el, true);
         }
       })
