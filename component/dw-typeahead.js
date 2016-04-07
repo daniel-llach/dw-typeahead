@@ -161,11 +161,13 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       // vertical
       if(windowHeight - ( contentTop + contentHeight ) < 0 ){
         $el.find('content').css({
+          display: 'block',
           top: contentTop - contentHeight + - headerHeight + 'px',
           'box-shadow': '0px -10px 5px -1px rgba(0,0,0,0.32)'
         })
       }else{
         $el.find('content').css({
+          display: 'block',
           top: contentTop + 'px',
           'box-shadow': '0px 10px 5px -1px rgba(0,0,0,0.32)'
 
@@ -422,6 +424,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       })
     },
     clickOut: function($el, options){
+      let $content = $el.find('content');
       let $options = $el.find('content > .options');
       let $clear = $el.find('.clear');
       $(document).mouseup(function (e)
@@ -429,6 +432,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
           if (!$el.is(e.target) // if the target of the click isn't the $el...
               && $el.has(e.target).length === 0) // ... nor a descendant of the $el
           {
+              $content.css('display','block');
               $options.addClass('hide');
               $clear.addClass('hide')
           }
