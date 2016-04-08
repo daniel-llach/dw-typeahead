@@ -1,10 +1,13 @@
-var scripts = document.getElementsByTagName("script");
-var urlBase = scripts[scripts.length-1].src;
-urlBase = urlBase.replace('dw-typeahead.js', '');
 
 // dwFilter
 (function( $ ){
   "use strict"
+
+  var scripts = document.getElementsByTagName("script");
+  var urlBase = scripts[scripts.length-1].src;
+  urlBase = urlBase.replace('dw-typeahead.js', '');
+
+  let shadowDown;
 
   // Public methods
   let api = {
@@ -113,8 +116,6 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
         $.get(urlBase + "templates/options.html", function( result ) {
             let template = _.template(result);
 
-
-
             let data = _.sortBy(optionsData, 'primary');
 
             // options each
@@ -175,15 +176,15 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       if(windowHeight - ( contentTop + contentHeight ) < 0 ){
         $el.find('content').css({
           top: contentTop - contentHeight + - headerHeight + 'px'
-        })
-        .addClass('shadowUp')
-        .removeClass('shadowDown')
+        });
+        shadowDown = false;
+        methods.putShadow($el);
       }else{
         $el.find('content').css({
           top: contentTop + 'px'
-        })
-        .addClass('shadowDown')
-        .removeClass('shadowUp')
+        });
+        shadowDown = true;
+        methods.putShadow($el);
       }
       // horizontal
       $el.find('content').css({
@@ -191,6 +192,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
         left: contentLeft + 'px'
 
       })
+      // shadow
     },
     previousParentsScrollTop: function($el){
       (function($) {
@@ -347,6 +349,9 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
       $search.val(primaryContent);
       $search.focus();
 
+    },
+    putShadow: function($el){
+      (shadowDown) ? $el.find('.options').addClass('shadowDown').removeClass('shadowUp') : $el.find('.options').addClass('shadowUp').removeClass('shadowDown');
     }
   }
 
@@ -396,6 +401,7 @@ urlBase = urlBase.replace('dw-typeahead.js', '');
 
           // show/hide clear icon
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
+
         },
         focusout: function(event){
           api.restart($el, false);
