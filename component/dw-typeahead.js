@@ -110,6 +110,15 @@
           _.each(groups, function(group){
             $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
           })
+        }else{
+          let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
+          if(optionsSize != 0){
+            console.log("existe grupo");
+          }else{
+            $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+            console.log("no existe grupo");
+
+          }
         }
 
         // put options into its group
