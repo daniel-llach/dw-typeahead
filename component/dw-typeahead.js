@@ -15,14 +15,18 @@
   let api = {
     init : function(options) {
       const $el = $(this);
-      // deploy component structure
-      let deployment = new Promise(function(resolve, reject){
-        methods.deployComponent($el, options);
-        resolve()
-      })
-      deployment.then(function(){
-        methods.getTemplate($el, options);
-      })
+      if(!options.delete){
+        // deploy component structure
+        let deployment = new Promise(function(resolve, reject){
+          methods.deployComponent($el, options);
+          resolve()
+        })
+        deployment.then(function(){
+          methods.getTemplate($el, options);
+        })
+      }else{
+        methods.delete($el, options);
+      }
     },
     destroy: function(){
       const $el = $(this);
@@ -375,6 +379,21 @@
     },
     putShadow: function($el){
       (shadowDown) ? $el.find('.options').addClass('shadowDown').removeClass('shadowUp') : $el.find('.options').addClass('shadowUp').removeClass('shadowDown');
+    },
+
+    delete: function($el, options){
+      let itemId = options.delete[0]['id'];
+      // delete items
+      methods.removeItem($el, itemId);
+      //update selectedItems
+      let itemsId = [];
+      itemsId.push(itemId);
+      selectedIds = _.difference(selectedIds, itemsId)
+      console.log("selectedIds: ", selectedIds);
+    },
+
+    removeItem: function($el, itemId){
+      $el.find('.option[data-id="' + itemId +  '"]').remove();
     }
   }
 
@@ -491,7 +510,10 @@
       $(document).on( 'scroll', $parentScroll[0].tagname, function(){
         methods.setPosition($el)
       });
-    },
+    }
+
+
+
 
   };
 
