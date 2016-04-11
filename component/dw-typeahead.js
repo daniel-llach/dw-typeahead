@@ -393,7 +393,14 @@
     },
 
     removeItem: function($el, itemId){
+      let groupItem = $el.find('.option[data-id="' + itemId +  '"]').parent().attr('class').replace('group-content ','');
       $el.find('.option[data-id="' + itemId +  '"]').remove();
+      let $groupItem = $('#' + groupItem);
+      console.log("$groupItem: ", $groupItem);
+      let groupItemLength = $groupItem.next().children().length;
+      console.log("groupItemLength: ", groupItemLength);
+      (groupItemLength == 0) ? $el.find('.group#' + groupItem).remove() : false;
+
     }
   }
 
