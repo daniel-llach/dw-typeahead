@@ -29,6 +29,8 @@
       }
     },
     destroy: function(){
+      selectedIds = [];
+
       const $el = $(this);
       $el.empty();
       $el.removeClass('dw-typeahead');
@@ -65,6 +67,8 @@
       $options.addClass('hide');
       $clear.addClass('hide');
       $search.val('');  // clean text search
+      // Clear result data
+      $el.data('result', null);
     }
   }
 
@@ -101,67 +105,59 @@
 
     },
     optionTemplate: function($el, options){
-
       let optionsData = (options.add) ? options['add'] : options.data;
       let contains = _.contains(selectedIds, optionsData[0]['id'])
-      let data = optionsData[0];
+      let head = optionsData[0];
 
       // If has groups, paint groups containers
-      if( data.hasOwnProperty('group') ){
+      if ( head.hasOwnProperty('group') ) {
         // define groups
         let groups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
 
         // paint groups containers
         if(!options.add){
-
           _.each(groups, function(group){
             $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
           })
-
-        }else{
-
-          if(!contains){
+        } else {
+          if (!contains) {
             let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
             if(optionsSize == 0){
               $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
             }
-          }else{
+          } else {
             console.info("ya existe id");
           }
         }
 
-
         // check if exist id
-        if(!contains){
-
+        if (!contains) {
           // put options into its group
           $.get(urlBase + "templates/options.html", function( result ) {
             let template = _.template(result);
 
-            let data = _.sortBy(optionsData, 'primary');
-
+            let sorted_options = _.sortBy(optionsData, 'primary');
 
             // options each
-            data.forEach(data => {
+            sorted_options.forEach(option => {
               let contentHtml = template({
-                id: data['id'],
-                primary: data['primary'],
-                secundary: data['secundary'],
-                selected: data['selected']
+                id: option['id'],
+                primary: option['primary'],
+                secundary: option['secundary'],
+                selected: option['selected']
               });
               // paint in specific group content
-              let group = data['group'];
+              let group = option['group'];
 
-              $el.find('.' + group + '.group-content').append(contentHtml);
+              var selector = '.' + group + '.group-content';
+              $el.find(selector).append(contentHtml);
             });
 
             methods.setPosition($el);
             events.start($el, options);
           });
         }
-
-
-      }else{
+      } else{
         // no groups
         // put options into its group
         $.get(urlBase + "templates/options.html", function( result ) {
@@ -184,8 +180,6 @@
             events.start($el, options);
           });
       }
-
-
     },
     setPosition: function($el){
       let windowHeight = $(window).height();
@@ -362,7 +356,8 @@
         let $opt = $(options[i]);
         ids.push($opt.data('id'));
       }
-      $el.data('result', ids);
+
+      $el.data('result', _.uniq(ids));
       methods.passResult($el);
       return ids;
     },
@@ -389,18 +384,19 @@
       let itemsId = [];
       itemsId.push(itemId);
       selectedIds = _.difference(selectedIds, itemsId)
-      console.log("selectedIds: ", selectedIds);
     },
 
     removeItem: function($el, itemId){
       let groupItem = $el.find('.option[data-id="' + itemId +  '"]').parent().attr('class').replace('group-content ','');
       $el.find('.option[data-id="' + itemId +  '"]').remove();
       let $groupItem = $('#' + groupItem);
-      console.log("$groupItem: ", $groupItem);
       let groupItemLength = $groupItem.next().children().length;
-      console.log("groupItemLength: ", groupItemLength);
-      (groupItemLength == 0) ? $el.find('.group#' + groupItem).remove() : false;
-
+      if (groupItemLength == 0) {
+        // borrar titulo del grupo
+        $el.find('.group#' + groupItem).remove();
+        // borrar contenedor de opciones
+        $el.find('.group-content.' + groupItem).remove();
+      }
     }
   }
 
