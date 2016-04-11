@@ -9,6 +9,8 @@
 
   let shadowDown;
 
+  let selectedIds = [];
+
   // Public methods
   let api = {
     init : function(options) {
@@ -97,7 +99,7 @@
     optionTemplate: function($el, options){
 
       let optionsData = (options.add) ? options['add'] : options.data;
-
+      let contains = _.contains(selectedIds, optionsData[0]['id'])
       let data = optionsData[0];
 
       // If has groups, paint groups containers
@@ -107,25 +109,33 @@
 
         // paint groups containers
         if(!options.add){
+
           _.each(groups, function(group){
             $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
           })
-        }else{
-          let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
-          if(optionsSize != 0){
-            console.log("existe grupo");
-          }else{
-            $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
-            console.log("no existe grupo");
 
+        }else{
+
+          if(!contains){
+            let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
+            if(optionsSize == 0){
+              $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+            }
+          }else{
+            console.info("ya existe id");
           }
         }
 
-        // put options into its group
-        $.get(urlBase + "templates/options.html", function( result ) {
+
+        // check if exist id
+        if(!contains){
+
+          // put options into its group
+          $.get(urlBase + "templates/options.html", function( result ) {
             let template = _.template(result);
 
             let data = _.sortBy(optionsData, 'primary');
+
 
             // options each
             data.forEach(data => {
@@ -137,12 +147,15 @@
               });
               // paint in specific group content
               let group = data['group'];
+
               $el.find('.' + group + '.group-content').append(contentHtml);
             });
 
             methods.setPosition($el);
             events.start($el, options);
           });
+        }
+
 
       }else{
         // no groups
@@ -167,6 +180,7 @@
             events.start($el, options);
           });
       }
+
 
     },
     setPosition: function($el){
@@ -369,6 +383,13 @@
   var events = {
 
     start: function($el, options){
+      let $options = $el.find('.option').toArray();
+      $options.forEach(opt => {
+        let $opt = $(opt);
+        selectedIds.push($opt.data('id'));
+        selectedIds = _.uniq(selectedIds);  // prevent duplicate ids
+      })
+
       events.onSearch($el, options);
       events.clearSearch($el, options);
       events.clickOption($el, options);
