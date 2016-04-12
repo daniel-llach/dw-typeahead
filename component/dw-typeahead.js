@@ -10,6 +10,7 @@
   let shadowDown;
 
   let selectedIds = [];
+  let groups = [];
 
   // Public methods
   let api = {
@@ -112,7 +113,9 @@
       // If has groups, paint groups containers
       if ( head.hasOwnProperty('group') ) {
         // define groups
-        let groups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
+        let tempGroups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
+        groups = _.union(groups,tempGroups, optionsData[0].group[0]);
+        groups = _.uniq(groups);
 
         // paint groups containers
         if(!options.add){
@@ -121,9 +124,20 @@
           })
         } else {
           if (!contains) {
+
             let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
+            groups.push(optionsData[0].group[0]);
+            groups = _.uniq(groups);
+            groups = groups.sort();
             if(optionsSize == 0){
-              $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+              let groupIndex = _.sortedIndex(groups, optionsData[0].group[0]);
+              let appendPoint = groups[groupIndex];
+
+              if(groupIndex == groups.length - 1){
+                $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+              }else{
+                $el.find('content > .options .group#' + groups[groupIndex+1]).before('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+              }
             }
           } else {
             console.info("ya existe id");
@@ -135,7 +149,6 @@
           // put options into its group
           $.get(urlBase + "templates/options.html", function( result ) {
             let template = _.template(result);
-
             let sorted_options = _.sortBy(optionsData, 'primary');
 
             // options each
@@ -148,9 +161,30 @@
               });
               // paint in specific group content
               let group = option['group'];
+              let primary = option['primary'];
 
-              var selector = '.' + group + '.group-content';
-              $el.find(selector).append(contentHtml);
+              var $selector = $el.find('.' + group + '.group-content');
+              if(!options.add){
+                $selector.append(contentHtml);
+              }else{
+                let position = parseInt( methods.sortInGroup($el, optionsData[0].group[0], optionsData[0].primary) );
+                let items = $el.find('.group-content.' + group + ' .primary');
+                if(items.length == 1){
+                  if(position == 0){
+                    $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                  }else{
+                    $selector.append(contentHtml);
+                  }
+                }else{
+                  if(position == 0){
+                    $selector.append(contentHtml);
+                  }else{
+                    position = position+1;
+                    $el.find('.' + group + '.group-content .option:nth-child(' + position + ')').before(contentHtml);
+                  }
+                }
+
+              }
             });
 
             methods.setPosition($el);
@@ -158,6 +192,7 @@
           });
         }
       } else{
+
         // no groups
         // put options into its group
         $.get(urlBase + "templates/options.html", function( result ) {
@@ -175,6 +210,8 @@
               });
               $el.find('content > .options').append(contentHtml);
             });
+
+
 
             methods.setPosition($el);
             events.start($el, options);
@@ -396,7 +433,28 @@
         $el.find('.group#' + groupItem).remove();
         // borrar contenedor de opciones
         $el.find('.group-content.' + groupItem).remove();
+        // remove from groups array
+        groups = _.difference(groups, [groupItem]);
       }
+    },
+
+    sortInGroup: function($el, group, primary){
+      let items = $el.find('.group-content.' + group + ' .primary');
+      if(items.length == 0){
+        return 0;
+      }else{
+        let primaries = [];
+        items.each(function(i, item){
+          primaries.push( $(item).text() );
+        })
+
+        primaries = _.union(primaries, [primary]);
+        primaries = _.uniq(primaries);
+        primaries = primaries.sort();
+        return _.sortedIndex(primaries, primary);
+
+      }
+
     }
   }
 
