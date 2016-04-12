@@ -5,8 +5,8 @@
   ],
   "description": "A typeahead component for DarwinEd",
   "main": [
-    "components/dw-selector.js",
-    "components/dw-selector.css"
+    "components/dw-typeahead.js",
+    "components/dw-typeahead.css"
   ],
   "moduleType": "amd",
   "keywords": [
