@@ -107,101 +107,103 @@
     },
     optionTemplate: function($el, options){
       let optionsData = (options.add) ? options['add'] : options.data;
-      let contains = _.contains(selectedIds, optionsData[0]['id'])
-      let head = optionsData[0];
+      if(optionsData.length > 0){
 
-      // If has groups, paint groups containers
-      if ( head.hasOwnProperty('group') ) {
-        // define groups
-        let tempGroups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
-        groups = _.union(groups,tempGroups, optionsData[0].group[0]);
-        groups = _.uniq(groups);
+        let contains = _.contains(selectedIds, optionsData[0]['id'])
+        let head = optionsData[0];
 
-        // paint groups containers
-        if(!options.add){
-          _.each(groups, function(group){
-            $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
-          })
-        } else {
-          if (!contains) {
+        // If has groups, paint groups containers
+        if ( head.hasOwnProperty('group') ) {
+          // define groups
+          let tempGroups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
+          groups = _.union(groups,tempGroups, optionsData[0].group[0]);
+          groups = _.uniq(groups);
 
-            let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
-            groups.push(optionsData[0].group[0]);
-            groups = _.uniq(groups);
-            groups = groups.sort();
-            if(optionsSize == 0){
-              let groupIndex = _.sortedIndex(groups, optionsData[0].group[0]);
-              let appendPoint = groups[groupIndex];
-
-              if(groupIndex == groups.length - 1){
-                $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
-              }else{
-                $el.find('content > .options .group#' + groups[groupIndex+1]).before('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
-              }
-            }
+          // paint groups containers
+          if(!options.add){
+            _.each(groups, function(group){
+              $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
+            })
           } else {
-            console.info("ya existe id");
-          }
-        }
+            if (!contains) {
 
-        // check if exist id
-        if (!contains) {
-          // put options into its group
-          $.get(urlBase + "templates/options.html", function( result ) {
-            let template = _.template(result);
-            let sorted_options = _.sortBy(optionsData, 'primary');
+              let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
+              groups.push(optionsData[0].group[0]);
+              groups = _.uniq(groups);
+              groups = groups.sort();
+              if(optionsSize == 0){
+                let groupIndex = _.sortedIndex(groups, optionsData[0].group[0]);
+                let appendPoint = groups[groupIndex];
 
-            // options each
-            sorted_options.forEach(option => {
-              let contentHtml = template({
-                id: option['id'],
-                primary: option['primary'],
-                secundary: option['secundary'],
-                selected: option['selected']
-              });
-              // paint in specific group content
-              let group = option['group'];
-              let primary = option['primary'];
-
-              var $selector = $el.find('.' + group + '.group-content');
-              if(!options.add){
-                $selector.append(contentHtml);
-              }else{
-                let position = parseInt( methods.sortInGroup($el, optionsData[0].group[0], optionsData[0].primary) );
-                let items = $el.find('.group-content.' + group + ' .primary');
-                if(items.length == 1){
-                  if(position == 0){
-                    $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
-                  }else{
-                    $selector.append(contentHtml);
-                  }
+                if(groupIndex == groups.length - 1){
+                  $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
                 }else{
-                  if(position == 0){
-                    if(items.length == 0){
+                  $el.find('content > .options .group#' + groups[groupIndex+1]).before('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+                }
+              }
+            } else {
+              console.info("ya existe id");
+            }
+          }
+
+          // check if exist id
+          if (!contains) {
+            // put options into its group
+            $.get(urlBase + "templates/options.html", function( result ) {
+              let template = _.template(result);
+              let sorted_options = _.sortBy(optionsData, 'primary');
+
+              // options each
+              sorted_options.forEach(option => {
+                let contentHtml = template({
+                  id: option['id'],
+                  primary: option['primary'],
+                  secundary: option['secundary'],
+                  selected: option['selected']
+                });
+                // paint in specific group content
+                let group = option['group'];
+                let primary = option['primary'];
+
+                var $selector = $el.find('.' + group + '.group-content');
+                if(!options.add){
+                  $selector.append(contentHtml);
+                }else{
+                  let position = parseInt( methods.sortInGroup($el, optionsData[0].group[0], optionsData[0].primary) );
+                  let items = $el.find('.group-content.' + group + ' .primary');
+                  if(items.length == 1){
+                    if(position == 0){
+                      $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                    }else{
+                      $selector.append(contentHtml);
+                    }
+                  }else{
+                    if(position == 0){
+                      if(items.length == 0){
+                        $selector.append(contentHtml);
+                      }else{
+                        $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                      }
+                    }else if(position == items.length){
                       $selector.append(contentHtml);
                     }else{
-                      $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                      position = position+1;
+                      $el.find('.' + group + '.group-content .option:nth-child(' + position + ')').before(contentHtml);
                     }
-                  }else if(position == items.length){
-                    $selector.append(contentHtml);
-                  }else{
-                    position = position+1;
-                    $el.find('.' + group + '.group-content .option:nth-child(' + position + ')').before(contentHtml);
                   }
+
                 }
+              });
 
-              }
+              methods.setPosition($el);
+              events.start($el, options);
             });
+          }
+        } else{
 
-            methods.setPosition($el);
-            events.start($el, options);
-          });
-        }
-      } else{
-
-        // no groups
-        // put options into its group
-        $.get(urlBase + "templates/options.html", function( result ) {
+          // no groups
+          // put options into its group
+          $.get(urlBase + "templates/options.html", function( result ) {
             let template = _.template(result);
 
             let data = _.sortBy(optionsData, 'primary');
@@ -222,6 +224,10 @@
             methods.setPosition($el);
             events.start($el, options);
           });
+        }
+
+      }else{
+        // console.log("empty: no options");
       }
     },
     setPosition: function($el){
