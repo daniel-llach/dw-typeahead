@@ -426,13 +426,17 @@
     },
 
     delete: function($el, options){
-      let itemId = options.delete[0]['id'];
-      // delete items
-      methods.removeItem($el, itemId);
-      //update selectedItems
-      let itemsId = [];
-      itemsId.push(itemId);
-      selectedIds = _.difference(selectedIds, itemsId)
+      let optionsToDelete = options.delete;
+      for(let i=0;i<optionsToDelete.length;i++){
+        let itemId = options.delete[i]['id'];
+        // delete items
+        methods.removeItem($el, itemId);
+        //update selectedItems
+        let itemsId = [];
+        itemsId.push(itemId);
+        selectedIds = _.difference(selectedIds, itemsId)
+
+      }
     },
 
     removeItem: function($el, itemId){
@@ -463,7 +467,6 @@
         primaries = _.union(primaries, [primary]);
         primaries = _.uniq(primaries);
         primaries = primaries.sort();
-        console.log("primaries: ", primaries);
         return _.sortedIndex(primaries, primary);
 
       }
