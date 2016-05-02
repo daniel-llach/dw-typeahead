@@ -359,13 +359,10 @@
           let optTemp = inputData.split(' ');
 
           // groups
-
           optTemp[0] = optTemp[0].toLowerCase();
           optTemp[0] = optTemp[0].replace(':','');
           ( tempInput.indexOf(optTemp[0]) != -1 ) ? $grp.show() : $grp.hide();
           ( tempInput.indexOf(optTemp[0]) != -1 ) ? $grp.next().show() : $grp.next().hide();
-
-
 
           // options
 
@@ -383,11 +380,9 @@
             optTemp[1] = optTemp[1].toLowerCase();
 
             ( tempPrimary.indexOf(optTemp[1]) != -1 || tempSecundary.indexOf(optTemp[1]) != -1 ) ? $opt.show() : $opt.hide();
-
           });
 
         }else{
-
           tempInput = tempInput.toLowerCase();
           inputData = inputData.replace(':','');
           inputData = inputData.toLowerCase();
@@ -413,9 +408,9 @@
     passResult: function($el){
       $el.trigger('change');
     },
-    showSelected: function($el, $target, options){
+    showSelected: function($el, selectedDiv, options){
       let $search = $el.find('.search input');
-      let primaryContent = $( $target.parent() ).find('.primary').text();
+      let primaryContent = selectedDiv.find('.primary').text();
 
       $search.val(primaryContent);
       $search.focus();
@@ -471,6 +466,32 @@
 
       }
 
+    },
+    nextgroupCalc: function($el, currentGroup, totalGroups){
+      for(let i=currentGroup+1;i<totalGroups;i++){
+        if( !$el.find('.group-content:eq(' + i + ')').children(':visible').length == 0 ){
+          return i;
+        }
+      }
+    },
+    prevgroupCalc: function($el, currentGroup, totalGroups){
+      if(currentGroup == -1){
+        currentGroup = totalGroups;
+      }
+      for(let i=currentGroup-1;i>-1;i--){
+        if( !$el.find('.group-content:eq(' + i + ')').children(':visible').length == 0 ){
+          return i;
+        }
+      }
+    },
+    updateScroll: function($el){
+      let $selected = $el.find('.option.selected');
+      if($selected != 'undefined' || $selected != null || $selected != ''){
+        let $options = $el.find('.options');
+        $options.stop().animate({
+          scrollTop: $selected.offset().top - $selected.scrollTop() - $options.offset().top
+        }, 500);
+      }
     }
   }
 
@@ -522,17 +543,186 @@
 
           $options.removeClass('hide');
           methods.setPosition($el);
-
           events.initOptions($el, options);
 
           // show/hide clear icon
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
 
+          // active shortcuts
+          events.initShortcuts($el, options);
         },
         focusout: function(event){
           api.restart($el, false);
+          events.destroyShortcuts($el);
         }
       });
+    },
+    initShortcuts: function($el, options){
+      $el.keydown(function(event){
+        let code = (event.keyCode ? event.keyCode : event.which);                                   // get press key code
+        let currentSelectedItem = $el.find('.options .selected').index();                           // get index of current selected item
+        let currentGroupClass = $el.find('.options .selected').parent().attr('class');              // get group class
+        let allgroups = $el.find('.group-content');                                                 // an array of groups classes
+        let currentGroup = _.sortedIndex(allgroups, {className: currentGroupClass}, 'className');   // get id of current class
+        let nextgroup;
+        let prevgroup;
+        let $item;
+        let $next;
+        let $prev;
+
+        // Acciones segun tecla presionada
+        switch (code) {
+            case 40:
+                // down
+                // Primero reconoce si parte desde cero
+                // o si ya existe un item seleccionado
+                if(currentSelectedItem != -1){
+                  $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
+                  $next = $item.nextAll('.option:visible:first');
+
+                  $el.find('.options .option').removeClass('selected');
+                  $next.addClass('selected');
+
+                  if($next.length == 0){
+                    // aqui tiene que ir a buscar el proximo item visible
+                    // del grupo que viene si es que existe y si no
+                    // comenzar de nuevo con el primer grupo
+                    nextgroup = 0;
+                    nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
+                    if(nextgroup!=0){
+                      // si el primer item es visible seleccionalo,
+                      // sino selecciona el siguiente
+                      $item = $el.find('.group-content:eq(' + nextgroup + ')').find('.option:eq(0)');
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $next = $item.nextAll('.option:visible:first');
+                        $next.addClass('selected');
+                      }
+                    }else{
+                      $item = $el.find('.group-content:eq(0)').find('.option:eq(0)');
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $next = $item.nextAll('.option:visible:first');
+                        $next.addClass('selected');
+                      }
+                    }
+                  }
+                }else{
+                  // si el primer grupo es visible parte de ahi
+                  // si no es visible selecciona el siguiente
+                  // grupo visible
+
+                  let firstGroup = $el.find('.group-content:eq(0)');
+                  nextgroup = 0;
+                  if(firstGroup.children(':visible').length == 0){
+                    nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
+                  }
+                  if(nextgroup!=0){
+                    // si el primer item es visible seleccionalo,
+                    // sino selecciona el siguiente
+                    $item = $el.find('.group-content:eq(' + nextgroup + ')').find('.option:eq(0)');
+                    if($item.is(':visible')){
+                      $item.addClass('selected');
+                    }else{
+                      $next = $item.nextAll('.option:visible:first');
+                      $next.addClass('selected');
+                    }
+                  }else{
+                    $item = $el.find('.group-content:eq(0)').find('.option:eq(0)');
+                    if($item.is(':visible')){
+                      $item.addClass('selected');
+                    }else{
+                      $next = $item.nextAll('.option:visible:first');
+                      $next.addClass('selected');
+                    }
+                  }
+
+                }
+                break;
+            case 38:
+                // up
+                // Primero reconoce si parte desde cero
+                // o si ya existe un item seleccionado
+                if(currentSelectedItem != -1){
+                  $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
+                  $prev = $item.prevAll('.option:visible:first');
+
+                  $el.find('.options .option').removeClass('selected');
+                  $prev.addClass('selected');
+
+                  if($prev.length == 0){
+                    // aqui tiene que ir a buscar el anterior item visible
+                    // del grupo anterior si es que existe y si no
+                    // comenzar de nuevo desde el ultimo grupo
+                    prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
+                    if(prevgroup!=allgroups.length){
+                      // si el ultimo item es visible seleccionalo,
+                      // sino selecciona el anterior
+                      $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $prev = $item.prevAll('.option:visible:first');
+                        $prev.addClass('selected');
+                      }
+                    }else{
+                      $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $prev = $item.prevAll('.option:visible:first');
+                        $prev.addClass('selected');
+                      }
+                    }
+                  }
+
+                }else{
+                  // si el ultimo grupo es visible parte de ahi
+                  // si no es visible selecciona el anterior
+                  // grupo visible
+
+                  let lastGroup = $el.find('.group-content:eq(-1)');
+                  prevgroup = allgroups.length;
+                  if(lastGroup.children(':visible').length == 0){
+                    currentGroup = allgroups.length;
+                    prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
+                  }
+                  if(prevgroup!=allgroups.length){
+                    // si ultimo item es visible seleccionalo,
+                    // sino selecciona el anterior
+                    console.log("ultimo");
+                    $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
+                    if($item.is(':visible')){
+                      $item.addClass('selected');
+                    }else{
+                      $prev = $item.prevAll('.option:visible:first');
+                      $prev.addClass('selected');
+                    }
+                  }else{
+                    $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                    if($item.is(':visible')){
+                      $item.addClass('selected');
+                    }else{
+                      $next = $item.prevAll('.option:visible:first');
+                      $next.addClass('selected');
+                    }
+                  }
+                }
+                break;
+            case 13:
+                // enter
+                let selectedId = $el.find('.options .selected').data('id');
+                events.selectOption(selectedId, $el, options);
+                break;
+        }
+        methods.updateScroll($el);
+
+      })
+    },
+    destroyShortcuts: function($el){
+      $el.unbind('keydown');
     },
     clearSearch: function($el, options){
       let $search = $el.find('.search input');
@@ -556,16 +746,21 @@
         click: function(event){
           event.preventDefault();
           event.stopPropagation();
-          // mark as selected
-          $options.removeClass('selected');
-          $(event.target).parent().toggleClass('selected');
-          api.val($el);
-          // show selected option
-          methods.showSelected( $el, $(event.target), options )
-          // hide options
-          $el.find('.options').addClass('hide');
+          let selectedId = $(event.target).parent().data('id');
+          events.selectOption(selectedId, $el, options);
         }
       })
+    },
+    selectOption: function(selectedId, $el, options){
+      let $options = $el.find('.options .option');
+      // mark as selected
+      $options.removeClass('selected');
+      let selectedDiv = $el.find('.options .option[data-id="' + selectedId + '"]');
+      methods.showSelected( $el, selectedDiv, options );
+      // hide options
+      $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
+      selectedDiv.addClass('selected');
+      api.val($el);
     },
     clickOut: function($el, options){
       let $content = $el.find('content');
@@ -588,9 +783,6 @@
         methods.setPosition($el)
       });
     }
-
-
-
 
   };
 
