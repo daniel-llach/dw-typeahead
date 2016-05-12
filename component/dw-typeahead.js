@@ -1,5 +1,4 @@
-
-// dwFilter
+// dwTypeahead
 (function( $ ){
   "use strict"
 
@@ -320,12 +319,13 @@
 
     },
     hideOptions: function($el, inputData, options){
-
       if( options.data[0].hasOwnProperty('group') ){
 
         let firstLetter = inputData.charAt(0);
         (firstLetter != ':') ? methods.hideOption($el, inputData, options) : methods.hideGroups($el, inputData, options);
 
+      }else{
+        methods.hideOption($el, inputData, options);
       }
 
     },
@@ -344,6 +344,7 @@
         inputData = inputData.toLowerCase();
 
         ( tempPrimary.indexOf(inputData) != -1 || tempSecundary.indexOf(inputData) != -1 ) ? $opt.show() : $opt.hide();
+
 
       });
 
@@ -609,6 +610,8 @@
                       }
                     }
                   }
+                  methods.updateScroll($el);
+
                 }else{
                   // si el primer grupo es visible parte de ahi
                   // si no es visible selecciona el siguiente
@@ -638,6 +641,7 @@
                       $next.addClass('selected');
                     }
                   }
+                  methods.updateScroll($el);
 
                 }
                 break;
@@ -717,7 +721,6 @@
                 events.selectOption(selectedId, $el, options);
                 break;
         }
-        methods.updateScroll($el);
 
       })
     },
