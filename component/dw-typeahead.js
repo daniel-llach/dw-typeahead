@@ -58,6 +58,12 @@
       }else{
       }
 
+      events.destroyShortcuts($el);
+      if($el.find('input').is(":focus")){
+        events.initShortcuts($el)
+      }
+
+
     },
     empty: function($el){
       (typeof $el === 'undefined' || $el === null ) ? $el = $(this) : null;
@@ -414,7 +420,11 @@
       let primaryContent = selectedDiv.find('.primary').text();
 
       $search.val(primaryContent);
-      $search.focus();
+      if(options.pop == true){
+        $search.focus();
+      }else{
+
+      }
 
     },
     putShadow: function($el){
@@ -568,44 +578,81 @@
             api.restart($el, false);
             events.destroyShortcuts($el);
           }else{
+            events.destroyShortcuts($el);
           }
         }
       });
     },
     initShortcuts: function($el, options){
-      $el.keydown(function(event){
-        let code = (event.keyCode ? event.keyCode : event.which);                                   // get press key code
-        let currentSelectedItem = $el.find('.options .selected').index();                           // get index of current selected item
-        let currentGroupClass = $el.find('.options .selected').parent().attr('class');              // get group class
-        let allgroups = $el.find('.group-content');                                                 // an array of groups classes
-        let currentGroup = _.sortedIndex(allgroups, {className: currentGroupClass}, 'className');   // get id of current class
-        let nextgroup;
-        let prevgroup;
-        let $item;
-        let $next;
-        let $prev;
+      console.log("initShortcuts");
+      $el.bind({
+        'keydown': function(event){
+          let code = (event.keyCode ? event.keyCode : event.which);                                   // get press key code
+          let currentSelectedItem = $el.find('.options .selected').index();                           // get index of current selected item
+          let currentGroupClass = $el.find('.options .selected').parent().attr('class');              // get group class
+          let allgroups = $el.find('.group-content');                                                 // an array of groups classes
+          let currentGroup = _.sortedIndex(allgroups, {className: currentGroupClass}, 'className');   // get id of current class
+          let nextgroup;
+          let prevgroup;
+          let $item;
+          let $next;
+          let $prev;
 
-        // Acciones segun tecla presionada
-        switch (code) {
-            case 40:
-                // down
-                // Primero reconoce si parte desde cero
-                // o si ya existe un item seleccionado
-                if(currentSelectedItem != -1){
-                  console.log("si");
-                  $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
-                  $next = $item.nextAll('.option:visible:first');
+          // Acciones segun tecla presionada
+          switch (code) {
+              case 40:
+                  // down
+                  // Primero reconoce si parte desde cero
+                  // o si ya existe un item seleccionado
+                  if(currentSelectedItem != -1){
+                    console.log("si");
+                    $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
+                    $next = $item.nextAll('.option:visible:first');
 
-                  $el.find('.options .option').removeClass('selected');
-                  $next.addClass('selected');
+                    $el.find('.options .option').removeClass('selected');
+                    $next.addClass('selected');
 
-                  // si existen grupos
-                  if($next.length == 0){
-                    // aqui tiene que ir a buscar el proximo item visible
-                    // del grupo que viene si es que existe y si no
-                    // comenzar de nuevo con el primer grupo
+                    // si existen grupos
+                    if($next.length == 0){
+                      // aqui tiene que ir a buscar el proximo item visible
+                      // del grupo que viene si es que existe y si no
+                      // comenzar de nuevo con el primer grupo
+                      nextgroup = 0;
+                      nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
+                      if(nextgroup!=0){
+                        // si el primer item es visible seleccionalo,
+                        // sino selecciona el siguiente
+                        $item = $el.find('.group-content:eq(' + nextgroup + ')').find('.option:eq(0)');
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $next = $item.nextAll('.option:visible:first');
+                          $next.addClass('selected');
+                        }
+                      }else{
+                        $item = $el.find('.group-content:eq(0)').find('.option:eq(0)');
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $next = $item.nextAll('.option:visible:first');
+                          $next.addClass('selected');
+                        }
+                      }
+                    }
+                    methods.updateScroll($el);
+
+                  }else{
+                    console.log("no");
+
+                    // si el primer grupo es visible parte de ahi
+                    // si no es visible selecciona el siguiente
+                    // grupo visible
+
+                    let firstGroup = $el.find('.group-content:eq(0)');
                     nextgroup = 0;
-                    nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
+                    if(firstGroup.children(':visible').length == 0){
+                      nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
+                    }
                     if(nextgroup!=0){
                       // si el primer item es visible seleccionalo,
                       // sino selecciona el siguiente
@@ -625,62 +672,61 @@
                         $next.addClass('selected');
                       }
                     }
+                    methods.updateScroll($el);
+
                   }
-                  methods.updateScroll($el);
+                  break;
+              case 38:
+                  // up
+                  // Primero reconoce si parte desde cero
+                  // o si ya existe un item seleccionado
+                  if(currentSelectedItem != -1){
+                    $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
+                    $prev = $item.prevAll('.option:visible:first');
 
-                }else{
-                  console.log("no");
+                    $el.find('.options .option').removeClass('selected');
+                    $prev.addClass('selected');
 
-                  // si el primer grupo es visible parte de ahi
-                  // si no es visible selecciona el siguiente
-                  // grupo visible
-
-                  let firstGroup = $el.find('.group-content:eq(0)');
-                  nextgroup = 0;
-                  if(firstGroup.children(':visible').length == 0){
-                    nextgroup = methods.nextgroupCalc($el, currentGroup, allgroups.length);
-                  }
-                  if(nextgroup!=0){
-                    // si el primer item es visible seleccionalo,
-                    // sino selecciona el siguiente
-                    $item = $el.find('.group-content:eq(' + nextgroup + ')').find('.option:eq(0)');
-                    if($item.is(':visible')){
-                      $item.addClass('selected');
-                    }else{
-                      $next = $item.nextAll('.option:visible:first');
-                      $next.addClass('selected');
+                    if($prev.length == 0){
+                      // aqui tiene que ir a buscar el anterior item visible
+                      // del grupo anterior si es que existe y si no
+                      // comenzar de nuevo desde el ultimo grupo
+                      prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
+                      if(prevgroup!=allgroups.length){
+                        // si el ultimo item es visible seleccionalo,
+                        // sino selecciona el anterior
+                        $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $prev = $item.prevAll('.option:visible:first');
+                          $prev.addClass('selected');
+                        }
+                      }else{
+                        $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $prev = $item.prevAll('.option:visible:first');
+                          $prev.addClass('selected');
+                        }
+                      }
                     }
+                    methods.updateScroll($el);
+
                   }else{
-                    $item = $el.find('.group-content:eq(0)').find('.option:eq(0)');
-                    if($item.is(':visible')){
-                      $item.addClass('selected');
-                    }else{
-                      $next = $item.nextAll('.option:visible:first');
-                      $next.addClass('selected');
+                    // si el ultimo grupo es visible parte de ahi
+                    // si no es visible selecciona el anterior
+                    // grupo visible
+
+                    let lastGroup = $el.find('.group-content:eq(-1)');
+                    prevgroup = allgroups.length;
+                    if(lastGroup.children(':visible').length == 0){
+                      currentGroup = allgroups.length;
+                      prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
                     }
-                  }
-                  methods.updateScroll($el);
-
-                }
-                break;
-            case 38:
-                // up
-                // Primero reconoce si parte desde cero
-                // o si ya existe un item seleccionado
-                if(currentSelectedItem != -1){
-                  $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
-                  $prev = $item.prevAll('.option:visible:first');
-
-                  $el.find('.options .option').removeClass('selected');
-                  $prev.addClass('selected');
-
-                  if($prev.length == 0){
-                    // aqui tiene que ir a buscar el anterior item visible
-                    // del grupo anterior si es que existe y si no
-                    // comenzar de nuevo desde el ultimo grupo
-                    prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
-                    if(prevgroup!=allgroups.length){
-                      // si el ultimo item es visible seleccionalo,
+                    if(prevgroup!=0){
+                      // si ultimo item es visible seleccionalo,
                       // sino selecciona el anterior
                       $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
                       if($item.is(':visible')){
@@ -690,83 +736,51 @@
                         $prev.addClass('selected');
                       }
                     }else{
-                      $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
-                      if($item.is(':visible')){
-                        $item.addClass('selected');
+                      if($el.find('.group-content').size() == 1 ){
+                        $item = $el.find('.group-content:eq(0)').find('.option').last();
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $prev = $item.prevAll('.option:visible:first');
+                          $prev.addClass('selected');
+                        }
                       }else{
-                        $prev = $item.prevAll('.option:visible:first');
-                        $prev.addClass('selected');
+                        $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                        if($item.is(':visible')){
+                          $item.addClass('selected');
+                        }else{
+                          $prev = $item.prevAll('.option:visible:first');
+                          $prev.addClass('selected');
+                        }
                       }
                     }
+                    methods.updateScroll($el);
                   }
-                  methods.updateScroll($el);
+                  break;
+              case 13:
+                  // enter
+                  let selectedId = $el.find('.options .selected').data('id');
+                  events.selectOption(selectedId, $el, options);
+                  break;
+              case 27:
+                  // esc
+                  $el.find('.clear').click();
+                  let $content = $el.find('content');
+                  let $options = $el.find('content > .options');
+                  let $clear = $el.find('.clear');
+                  $options.addClass('hide');
+                  $clear.addClass('hide')
+                  $content.removeClass('shadowUp').removeClass('shadowDown');
+                  break;
 
-                }else{
-                  // si el ultimo grupo es visible parte de ahi
-                  // si no es visible selecciona el anterior
-                  // grupo visible
-
-                  let lastGroup = $el.find('.group-content:eq(-1)');
-                  prevgroup = allgroups.length;
-                  if(lastGroup.children(':visible').length == 0){
-                    currentGroup = allgroups.length;
-                    prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
-                  }
-                  if(prevgroup!=0){
-                    // si ultimo item es visible seleccionalo,
-                    // sino selecciona el anterior
-                    $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
-                    if($item.is(':visible')){
-                      $item.addClass('selected');
-                    }else{
-                      $prev = $item.prevAll('.option:visible:first');
-                      $prev.addClass('selected');
-                    }
-                  }else{
-                    if($el.find('.group-content').size() == 1 ){
-                      $item = $el.find('.group-content:eq(0)').find('.option').last();
-                      if($item.is(':visible')){
-                        $item.addClass('selected');
-                      }else{
-                        $prev = $item.prevAll('.option:visible:first');
-                        $prev.addClass('selected');
-                      }
-                    }else{
-                      $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
-                      if($item.is(':visible')){
-                        $item.addClass('selected');
-                      }else{
-                        $prev = $item.prevAll('.option:visible:first');
-                        $prev.addClass('selected');
-                      }
-
-                    }
-                  }
-                  methods.updateScroll($el);
-                }
-                break;
-            case 13:
-                // enter
-                let selectedId = $el.find('.options .selected').data('id');
-                events.selectOption(selectedId, $el, options);
-                break;
-            case 27:
-                // esc
-                $el.find('.clear').click();
-                let $content = $el.find('content');
-                let $options = $el.find('content > .options');
-                let $clear = $el.find('.clear');
-                $options.addClass('hide');
-                $clear.addClass('hide')
-                $content.removeClass('shadowUp').removeClass('shadowDown');
-
-                // let $search = $el.find('.search input');
-                // $search.focusout();
+                  // let $search = $el.find('.search input');
+                  // $search.focusout();
+          }
         }
-
       })
     },
     destroyShortcuts: function($el){
+      console.log("unbind");
       $el.unbind('keydown');
     },
     clearSearch: function($el, options){
@@ -793,7 +807,6 @@
           event.stopPropagation();
           let selectedId = $(event.target).parent().data('id');
           events.selectOption(selectedId, $el, options);
-          console.log("event.target: ", event.target);
         }
       })
     },
@@ -804,10 +817,14 @@
       let selectedDiv = $el.find('.options .option[data-id="' + selectedId + '"]');
       methods.showSelected( $el, selectedDiv, options );
       // hide options
-      if(options.pop == false){
-      }else{
-        $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
+      console.log("options: ", options);
+      if(typeof options != "undefined"){
+        if(options.pop == false){
+        }else{
+          $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
+        }
       }
+      // selected mark
       selectedDiv.addClass('selected');
       api.val($el);
     },
