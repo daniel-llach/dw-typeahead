@@ -487,12 +487,23 @@
     },
     updateScroll: function($el){
       let $selected = $el.find('.option.selected');
-      if($selected != 'undefined' || $selected != null || $selected != ''){
-        let $options = $el.find('.options');
-        $options.stop().animate({
-          scrollTop: $selected.offset().top - $selected.scrollTop() - $options.offset().top
-        }, 500);
+      let $group = $el.find('.group');
+      let indexFinal = $selected.index();
+
+      // Take current selected item index and rest all the hidden previous item
+      // then multiply it for the item height and substract the groups title heights
+      for(let i=$selected.index(); i>0; i--){
+        if($el.find('.option:nth-child(' + i + ')').is(":visible") ){
+        }else{
+          indexFinal = indexFinal-1;
+        }
       }
+
+      let $index = $selected.index();
+      let $options = $el.find('.options');
+      $options.stop().animate({
+        scrollTop: ( indexFinal * $selected.outerHeight() ) - ( $group.length * $group.outerHeight() ) - ($selected.outerHeight() * 2)
+      }, 500);
     }
   }
 
@@ -553,8 +564,11 @@
           events.initShortcuts($el, options);
         },
         focusout: function(event){
-          api.restart($el, false);
-          events.destroyShortcuts($el);
+          if(options.pop == true){
+            api.restart($el, false);
+            events.destroyShortcuts($el);
+          }else{
+          }
         }
       });
     },
@@ -578,12 +592,14 @@
                 // Primero reconoce si parte desde cero
                 // o si ya existe un item seleccionado
                 if(currentSelectedItem != -1){
+                  console.log("si");
                   $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
                   $next = $item.nextAll('.option:visible:first');
 
                   $el.find('.options .option').removeClass('selected');
                   $next.addClass('selected');
 
+                  // si existen grupos
                   if($next.length == 0){
                     // aqui tiene que ir a buscar el proximo item visible
                     // del grupo que viene si es que existe y si no
@@ -613,6 +629,8 @@
                   methods.updateScroll($el);
 
                 }else{
+                  console.log("no");
+
                   // si el primer grupo es visible parte de ahi
                   // si no es visible selecciona el siguiente
                   // grupo visible
@@ -681,6 +699,7 @@
                       }
                     }
                   }
+                  methods.updateScroll($el);
 
                 }else{
                   // si el ultimo grupo es visible parte de ahi
@@ -693,10 +712,9 @@
                     currentGroup = allgroups.length;
                     prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
                   }
-                  if(prevgroup!=allgroups.length){
+                  if(prevgroup!=0){
                     // si ultimo item es visible seleccionalo,
                     // sino selecciona el anterior
-                    console.log("ultimo");
                     $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
                     if($item.is(':visible')){
                       $item.addClass('selected');
@@ -705,14 +723,26 @@
                       $prev.addClass('selected');
                     }
                   }else{
-                    $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
-                    if($item.is(':visible')){
-                      $item.addClass('selected');
+                    if($el.find('.group-content').size() == 1 ){
+                      $item = $el.find('.group-content:eq(0)').find('.option').last();
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $prev = $item.prevAll('.option:visible:first');
+                        $prev.addClass('selected');
+                      }
                     }else{
-                      $next = $item.prevAll('.option:visible:first');
-                      $next.addClass('selected');
+                      $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                      if($item.is(':visible')){
+                        $item.addClass('selected');
+                      }else{
+                        $prev = $item.prevAll('.option:visible:first');
+                        $prev.addClass('selected');
+                      }
+
                     }
                   }
+                  methods.updateScroll($el);
                 }
                 break;
             case 13:
@@ -720,6 +750,18 @@
                 let selectedId = $el.find('.options .selected').data('id');
                 events.selectOption(selectedId, $el, options);
                 break;
+            case 27:
+                // esc
+                $el.find('.clear').click();
+                let $content = $el.find('content');
+                let $options = $el.find('content > .options');
+                let $clear = $el.find('.clear');
+                $options.addClass('hide');
+                $clear.addClass('hide')
+                $content.removeClass('shadowUp').removeClass('shadowDown');
+
+                // let $search = $el.find('.search input');
+                // $search.focusout();
         }
 
       })
@@ -751,6 +793,7 @@
           event.stopPropagation();
           let selectedId = $(event.target).parent().data('id');
           events.selectOption(selectedId, $el, options);
+          console.log("event.target: ", event.target);
         }
       })
     },
@@ -761,7 +804,10 @@
       let selectedDiv = $el.find('.options .option[data-id="' + selectedId + '"]');
       methods.showSelected( $el, selectedDiv, options );
       // hide options
-      $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
+      if(options.pop == false){
+      }else{
+        $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
+      }
       selectedDiv.addClass('selected');
       api.val($el);
     },
