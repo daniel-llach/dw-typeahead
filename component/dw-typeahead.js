@@ -112,6 +112,8 @@
     },
     optionTemplate: function($el, options){
       let optionsData = (options.add) ? options['add'] : options.data;
+      let groupTag = optionsData[0].group[0];
+      groupTag = groupTag.replace(' ','');
       if(optionsData.length > 0){
 
         let contains = _.contains(selectedIds, optionsData[0]['id'])
@@ -119,20 +121,22 @@
 
         // If has groups, paint groups containers
         if ( head.hasOwnProperty('group') ) {
+
           // define groups
           let tempGroups =  _.chain(optionsData).flatten().pluck('group').flatten().unique().value().sort();
-          groups = _.union(groups,tempGroups, optionsData[0].group[0]);
+          groups = _.union(groups,tempGroups, groupTag);
           groups = _.uniq(groups);
 
           // paint groups containers
           if(!options.add){
             _.each(groups, function(group){
-              $el.find('content > .options').append('<div class="group" id="' + group + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + group + '"></div>')
+              let tag = group.replace(' ','');
+              $el.find('content > .options').append('<div class="group" id="' + tag + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + tag + '"></div>')
             })
           } else {
             if (!contains) {
 
-              let optionsSize = $el.find('content .group-content.' + optionsData[0].group[0] + ' .option').size();
+              let optionsSize = $el.find('content .group-content.' + groupTag + ' .option').size();
               groups.push(optionsData[0].group[0]);
               groups = _.uniq(groups);
               groups = groups.sort();
@@ -141,9 +145,9 @@
                 let appendPoint = groups[groupIndex];
 
                 if(groupIndex == groups.length - 1){
-                  $el.find('content > .options').append('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+                  $el.find('content > .options').append('<div class="group" id="' + groupTag + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + groupTag + '"></div>')
                 }else{
-                  $el.find('content > .options .group#' + groups[groupIndex+1]).before('<div class="group" id="' + optionsData[0].group[0] + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + optionsData[0].group[0] + '"></div>')
+                  $el.find('content > .options .group#' + groups[groupIndex+1]).before('<div class="group" id="' + groupTag + '"><div class="title"><span class="name">' + optionsData[0].group[0] + '</span><span class="open"></span></div></div><div class="group-content ' + groupTag + '"></div>')
                 }
               }
             } else {
@@ -168,17 +172,18 @@
                 });
                 // paint in specific group content
                 let group = option['group'];
+                let tag = group[0].replace(' ','');
                 let primary = option['primary'];
 
-                var $selector = $el.find('.' + group + '.group-content');
+                var $selector = $el.find('.' + tag + '.group-content');
                 if(!options.add){
                   $selector.append(contentHtml);
                 }else{
-                  let position = parseInt( methods.sortInGroup($el, optionsData[0].group[0], optionsData[0].primary) );
-                  let items = $el.find('.group-content.' + group + ' .primary');
+                  let position = parseInt( methods.sortInGroup($el, tag, optionsData[0].primary) );
+                  let items = $el.find('.group-content.' + tag + ' .primary');
                   if(items.length == 1){
                     if(position == 0){
-                      $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                      $el.find('.' + tag + '.group-content .option:first-child').before(contentHtml);
                     }else{
                       $selector.append(contentHtml);
                     }
@@ -187,13 +192,13 @@
                       if(items.length == 0){
                         $selector.append(contentHtml);
                       }else{
-                        $el.find('.' + group + '.group-content .option:first-child').before(contentHtml);
+                        $el.find('.' + tag + '.group-content .option:first-child').before(contentHtml);
                       }
                     }else if(position == items.length){
                       $selector.append(contentHtml);
                     }else{
                       position = position+1;
-                      $el.find('.' + group + '.group-content .option:nth-child(' + position + ')').before(contentHtml);
+                      $el.find('.' + tag + '.group-content .option:nth-child(' + position + ')').before(contentHtml);
                     }
                   }
 
@@ -224,13 +229,10 @@
               $el.find('content > .options').append(contentHtml);
             });
 
-
-
             methods.setPosition($el);
             events.start($el, options);
           });
         }
-
       }else{
         // console.log("empty: no options");
       }
@@ -486,7 +488,7 @@
       }
     },
     prevgroupCalc: function($el, currentGroup, totalGroups){
-      if(currentGroup == -1){
+      if(currentGroup == 0){
         currentGroup = totalGroups;
       }
       for(let i=currentGroup-1;i>-1;i--){
@@ -496,24 +498,18 @@
       }
     },
     updateScroll: function($el){
+
       let $selected = $el.find('.option.selected');
-      let $group = $el.find('.group');
-      let indexFinal = $selected.index();
+      let allgroups = $el.find('.group-content');
+      let $currentGroup = $selected.parent().prev();
+      let indexGroup = $currentGroup.index();
+      let indexFinal = $el.find('.option:visible').index($selected);
 
-      // Take current selected item index and rest all the hidden previous item
-      // then multiply it for the item height and substract the groups title heights
-      for(let i=$selected.index(); i>0; i--){
-        if($el.find('.option:nth-child(' + i + ')').is(":visible") ){
-        }else{
-          indexFinal = indexFinal-1;
-        }
-      }
-
-      let $index = $selected.index();
       let $options = $el.find('.options');
       $options.stop().animate({
-        scrollTop: ( indexFinal * $selected.outerHeight() ) - ( $group.length * $group.outerHeight() ) - ($selected.outerHeight() * 2)
+        scrollTop: ( indexFinal * $selected.outerHeight() ) - ($selected.outerHeight() * 2)
       }, 500);
+
     }
   }
 
@@ -584,7 +580,6 @@
       });
     },
     initShortcuts: function($el, options){
-      console.log("initShortcuts");
       $el.bind({
         'keydown': function(event){
           let code = (event.keyCode ? event.keyCode : event.which);                                   // get press key code
@@ -605,7 +600,6 @@
                   // Primero reconoce si parte desde cero
                   // o si ya existe un item seleccionado
                   if(currentSelectedItem != -1){
-                    console.log("si");
                     $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
                     $next = $item.nextAll('.option:visible:first');
 
@@ -642,7 +636,6 @@
                     methods.updateScroll($el);
 
                   }else{
-                    console.log("no");
 
                     // si el primer grupo es visible parte de ahi
                     // si no es visible selecciona el siguiente
@@ -680,7 +673,8 @@
                   // up
                   // Primero reconoce si parte desde cero
                   // o si ya existe un item seleccionado
-                  if(currentSelectedItem != -1){
+
+                  if(currentSelectedItem != 0){
                     $item = $el.find('.group-content:eq(' + currentGroup + ')').find('.option:eq(' + currentSelectedItem + ')');
                     $prev = $item.prevAll('.option:visible:first');
 
@@ -695,7 +689,7 @@
                       if(prevgroup!=allgroups.length){
                         // si el ultimo item es visible seleccionalo,
                         // sino selecciona el anterior
-                        $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
+                        $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:last-child');
                         if($item.is(':visible')){
                           $item.addClass('selected');
                         }else{
@@ -703,7 +697,7 @@
                           $prev.addClass('selected');
                         }
                       }else{
-                        $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
+                        $item = $el.find('.group-content:eq(-1)').find('.option:last-child');
                         if($item.is(':visible')){
                           $item.addClass('selected');
                         }else{
@@ -715,46 +709,23 @@
                     methods.updateScroll($el);
 
                   }else{
-                    // si el ultimo grupo es visible parte de ahi
-                    // si no es visible selecciona el anterior
-                    // grupo visible
+                    // Estoy en el ultimo item del grupo actual
+                    // primero tengo que saber cual es el grupo anterior
+                    // que contiene items visibles
+                    // Y si no existe grupo previo debo ir al ultimo grupo
+                    // que tenga items visibles
 
-                    let lastGroup = $el.find('.group-content:eq(-1)');
-                    prevgroup = allgroups.length;
-                    if(lastGroup.children(':visible').length == 0){
-                      currentGroup = allgroups.length;
-                      prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
-                    }
-                    if(prevgroup!=0){
-                      // si ultimo item es visible seleccionalo,
-                      // sino selecciona el anterior
-                      $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:eq(-1)');
-                      if($item.is(':visible')){
-                        $item.addClass('selected');
-                      }else{
-                        $prev = $item.prevAll('.option:visible:first');
-                        $prev.addClass('selected');
-                      }
+                    // toma el grupo anterior
+                    let prevgroup = methods.prevgroupCalc($el, currentGroup, allgroups.length);
+                    // si el ultimo es visible
+                    let $item = $el.find('.group-content:eq(' + prevgroup + ')').find('.option:last-child');
+                    $('.option').removeClass('selected');
+                    if($item.is(':visible')){
+                      $item.addClass('selected');
                     }else{
-                      if($el.find('.group-content').size() == 1 ){
-                        $item = $el.find('.group-content:eq(0)').find('.option').last();
-                        if($item.is(':visible')){
-                          $item.addClass('selected');
-                        }else{
-                          $prev = $item.prevAll('.option:visible:first');
-                          $prev.addClass('selected');
-                        }
-                      }else{
-                        $item = $el.find('.group-content:eq(-1)').find('.option:eq(-1)');
-                        if($item.is(':visible')){
-                          $item.addClass('selected');
-                        }else{
-                          $prev = $item.prevAll('.option:visible:first');
-                          $prev.addClass('selected');
-                        }
-                      }
+                      let $prev = $item.prevAll('.option:visible:first');
+                      $prev.addClass('selected');
                     }
-                    methods.updateScroll($el);
                   }
                   break;
               case 13:
@@ -780,7 +751,6 @@
       })
     },
     destroyShortcuts: function($el){
-      console.log("unbind");
       $el.unbind('keydown');
     },
     clearSearch: function($el, options){
@@ -817,7 +787,6 @@
       let selectedDiv = $el.find('.options .option[data-id="' + selectedId + '"]');
       methods.showSelected( $el, selectedDiv, options );
       // hide options
-      console.log("options: ", options);
       if(typeof options != "undefined"){
         if(options.pop == false){
         }else{
