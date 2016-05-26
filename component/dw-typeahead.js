@@ -113,7 +113,7 @@
     optionTemplate: function($el, options){
       let optionsData = (options.add) ? options['add'] : options.data;
       let groupTag = optionsData[0].group[0];
-      groupTag = groupTag.replace(' ','');
+      groupTag = groupTag.replace(/ /g, '');
       if(optionsData.length > 0){
 
         let contains = _.contains(selectedIds, optionsData[0]['id'])
@@ -130,7 +130,7 @@
           // paint groups containers
           if(!options.add){
             _.each(groups, function(group){
-              let tag = group.replace(' ','');
+              let tag = group.replace(/ /g, '');
               $el.find('content > .options').append('<div class="group" id="' + tag + '"><div class="title"><span class="name">' + group + '</span><span class="open"></span></div></div><div class="group-content ' + tag + '"></div>')
             })
           } else {
@@ -172,7 +172,7 @@
                 });
                 // paint in specific group content
                 let group = option['group'];
-                let tag = group[0].replace(' ','');
+                let tag = group[0].replace(/ /g, '');
                 let primary = option['primary'];
 
                 var $selector = $el.find('.' + tag + '.group-content');
