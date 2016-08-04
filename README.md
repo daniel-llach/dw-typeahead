@@ -8,7 +8,7 @@ A typeahead component for DarwinEd app
 
 **dwTypeahead** show *options* divide into *groups*, one option can be insert in many groups.
 
-Every **option** has a *primary text* that is the main content and a *secundary* text that is a context or specific content for that options
+Every **option** has a *primary text* that is the main content and a *secondary* text that is a context or specific content for that options
 
 **dwTypeahead** has its own *search sintax*:
 
@@ -100,14 +100,14 @@ $('#sample1').dwTypeahead({
     {
       id: 1,
       primary: 'Cat',
-      secundary: 'Gray',
+      secondary: 'Gray',
       selected: false,
       group: ['feline']
     },
     {
       id: 2,
       primary: 'Dog',
-      secundary: 'White',
+      secondary: 'White',
       selected: false,
       group: ['canine']
     },
@@ -121,7 +121,7 @@ The next are the fields of an option object:
 
 - **primary:** The text that show in the first line of an option
 
-- **secundary:** The text that show in the second line of an option
+- **secondary:** The text that show in the second line of an option
 
 - **selected:** Indicate if this particular options has selected
 

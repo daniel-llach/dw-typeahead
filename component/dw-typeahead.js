@@ -113,7 +113,7 @@
     optionTemplate: function($el, options){
       let optionsData = (options.add) ? options['add'] : options.data;
       let groupTag = optionsData[0].group[0];
-      groupTag = groupTag.replace(/ /g, '');
+      // groupTag = groupTag.replace(/ /g, '');
       if(optionsData.length > 0){
 
         let contains = _.contains(selectedIds, optionsData[0]['id'])
@@ -167,7 +167,7 @@
                 let contentHtml = template({
                   id: option['id'],
                   primary: option['primary'],
-                  secundary: option['secundary'],
+                  secondary: option['secondary'],
                   selected: option['selected']
                 });
                 // paint in specific group content
@@ -223,7 +223,7 @@
               let contentHtml = template({
                 id: data['id'],
                 primary: data['primary'],
-                secundary: data['secundary'],
+                secondary: data['secondary'],
                 selected: data['selected']
               });
               $el.find('content > .options').append(contentHtml);
@@ -326,80 +326,40 @@
       return parentScroll;
 
     },
-    hideOptions: function($el, inputData, options){
-      if( options.data[0].hasOwnProperty('group') ){
-
-        let firstLetter = inputData.charAt(0);
-        (firstLetter != ':') ? methods.hideOption($el, inputData, options) : methods.hideGroups($el, inputData, options);
-
-      }else{
-        methods.hideOption($el, inputData, options);
-      }
-
-    },
-    hideOption: function($el, inputData, options){
-      let $option = $el.find('.option').toArray();
-
-      $option.forEach(opt => {
-
-        const $opt = $(opt);
-        let tempPrimary = $opt.find('.primary').text();
-        let tempSecundary = $opt.find('.secundary').text();
-
-        tempPrimary = tempPrimary.toLowerCase();
-        tempSecundary = tempSecundary.toLowerCase();
-
-        inputData = inputData.toLowerCase();
-
-        ( tempPrimary.indexOf(inputData) != -1 || tempSecundary.indexOf(inputData) != -1 ) ? $opt.show() : $opt.hide();
-
-
+    filter: function($el, inputData, options){
+      let $groups = $el.closest('.dw-typeahead').find('.group');
+      $groups.each((i, grp) => {
+        $(grp).hide();
+        $(grp).next().hide();
       });
 
-    },
-    hideGroups: function($el, inputData, options){
-      let $groups = $el.find('.options .group').toArray();
+      inputData = inputData.toLowerCase();
+      let $option = $el.find('.option').toArray();
+      $option.forEach(opt => {
+        const $opt = $(opt);
 
-      $groups.forEach(grp => {
-        const $grp = $(grp);
-        let tempInput = $grp.find('.title .name').text()
+        let $groupContainer = $opt.closest('.dw-typeahead .group-content');
+        let $primaryMatch = $opt.find('.primary').text().toLowerCase();
+        let $secondaryMatch = $opt.find('.secondary').text().toLowerCase();
 
-        if ( inputData.indexOf(' ') != -1 ){
-          let optTemp = inputData.split(' ');
+        if ($groupContainer.length) {
+          let $group = $groupContainer.prev();
+          let $groupName = $group.find('.name').text().toLowerCase();
+          $primaryMatch = $groupName + ' ' + $primaryMatch;
+          $secondaryMatch = $groupName + ' ' + $secondaryMatch;
+        }
 
-          // groups
-          optTemp[0] = optTemp[0].toLowerCase();
-          optTemp[0] = optTemp[0].replace(':','');
-          ( tempInput.indexOf(optTemp[0]) != -1 ) ? $grp.show() : $grp.hide();
-          ( tempInput.indexOf(optTemp[0]) != -1 ) ? $grp.next().show() : $grp.next().hide();
-
-          // options
-
-          let $option = $el.find('.option').toArray();
-
-          $option.forEach(opt => {
-
-            const $opt = $(opt);
-            let tempPrimary = $opt.find('.primary').text();
-            let tempSecundary = $opt.find('.secundary').text();
-
-            tempPrimary = tempPrimary.toLowerCase();
-            tempSecundary = tempSecundary.toLowerCase();
-
-            optTemp[1] = optTemp[1].toLowerCase();
-
-            ( tempPrimary.indexOf(optTemp[1]) != -1 || tempSecundary.indexOf(optTemp[1]) != -1 ) ? $opt.show() : $opt.hide();
-          });
-
-        }else{
-          tempInput = tempInput.toLowerCase();
-          inputData = inputData.replace(':','');
-          inputData = inputData.toLowerCase();
-          ( tempInput.indexOf(inputData) != -1 ) ? $grp.show() : $grp.hide();
-          ( tempInput.indexOf(inputData) != -1 ) ? $grp.next().show() : $grp.next().hide();
+        if ($primaryMatch.indexOf(inputData) != -1 ||
+            $secondaryMatch.indexOf(inputData) != -1) {
+          $opt.show();
+          if ($groupContainer.length) {
+            $groupContainer.show();
+            $groupContainer.prev().show();
+          }
+        } else {
+          $opt.hide();
         }
       });
-
     },
     getVal: function($el){
       // update $el data
@@ -549,7 +509,7 @@
       $search.on({
         keyup: function(event){
           var inputData = $search.val();
-          methods.hideOptions($el, inputData, options);
+          methods.filter($el, inputData, options);
 
           // show/hide clear icon
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
@@ -759,7 +719,7 @@
       $clear.on({
         click: function(event){
           $search.val('');
-          methods.hideOptions($el, $search.val(), options);
+          methods.filter($el, $search.val(), options);
           ($search.val().length > 0) ? $clear.removeClass('hide') : $clear.addClass('hide');
           ($search.val().length > 0) ? $search.removeClass('glass') : $search.addClass('glass');
 
