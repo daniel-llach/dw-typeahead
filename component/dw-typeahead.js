@@ -382,12 +382,7 @@
       let primaryContent = selectedDiv.find('.primary').text();
 
       $search.val(primaryContent);
-      if(options.pop == true){
-        $search.focus();
-      }else{
-
-      }
-
+      $search.focus();
     },
     putShadow: function($el){
       (shadowDown) ? $el.find('.options').addClass('shadowDown').removeClass('shadowUp') : $el.find('.options').addClass('shadowUp').removeClass('shadowDown');
@@ -530,12 +525,7 @@
           events.initShortcuts($el, options);
         },
         focusout: function(event){
-          if(options.pop == true){
-            api.restart($el, false);
-            events.destroyShortcuts($el);
-          }else{
-            events.destroyShortcuts($el);
-          }
+          events.destroyShortcuts($el);
         }
       });
     },
@@ -748,8 +738,7 @@
       methods.showSelected( $el, selectedDiv, options );
       // hide options
       if(typeof options != "undefined"){
-        if(options.pop == false){
-        }else{
+        if(options.pop) {
           $el.find('.options').addClass('hide');  // opcion si oculta o no opciones al seleccionar 1
         }
       }
